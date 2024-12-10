@@ -1,18 +1,23 @@
 <?php
 session_start();
 
-// Activer l'affichage des erreurs pour le débogage (désactiver en production)
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// Configuration des erreurs
+if (getenv('ENV') !== 'production') {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    error_reporting(0);
+}
 
 // Définir le type de contenu comme JSON
 header('Content-Type: application/json; charset=UTF-8');
 
 // Informations de connexion à la base de données
-$servername = "localhost";      // Remplacez par votre serveur
-$username = "root";  // Remplacez par votre nom d'utilisateur
-$password = "";  // Remplacez par votre mot de passe
-$dbname = "reservation"; // Remplacez par votre nom de base de données
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "reservation";
 
 // Créer une connexion
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -26,15 +31,31 @@ if ($conn->connect_error) {
 // Vérifier si la requête est en méthode POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Récupération et validation des données
-    $firstname = isset($_POST['firstname']) ? htmlspecialchars(trim($_POST['firstname'])) : '';
-    $lastname  = isset($_POST['lastname'])  ? htmlspecialchars(trim($_POST['lastname']))  : '';
-    $email     = isset($_POST['email'])     ? htmlspecialchars(trim($_POST['email']))     : '';
-    $role      = isset($_POST['role'])      ? htmlspecialchars(trim($_POST['role']))      : '';
-    $phone     = isset($_POST['phone'])     ? htmlspecialchars(trim($_POST['phone']))     : '';
+    $firstname     = isset($_POST['firstname']) ? htmlspecialchars(trim($_POST['firstname'])) : '';
+    $lastname      = isset($_POST['lastname'])  ? htmlspecialchars(trim($_POST['lastname']))  : '';
+    $email         = isset($_POST['email'])     ? htmlspecialchars(trim($_POST['email']))     : '';
+    $role          = isset($_POST['role'])      ? htmlspecialchars(trim($_POST['role']))      : '';
+    $country_code  = isset($_POST['country_code']) ? htmlspecialchars(trim($_POST['country_code'])) : '';
+    $phone         = isset($_POST['phone'])     ? htmlspecialchars(trim($_POST['phone']))     : '';
 
     // Vérifier que tous les champs sont remplis
-    if (empty($firstname) || empty($lastname) || empty($email) || empty($role) || empty($phone)) {
+    if (empty($firstname) || empty($lastname) || empty($email) || empty($role) || empty($country_code) || empty($phone)) {
         echo json_encode(['success' => false, 'error' => 'Tous les champs sont requis.']);
+        exit;
+    }
+
+    // Combiner l'indicatif et le numéro
+    $full_phone_number = $country_code . $phone;
+
+    // Validation de l'email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['success' => false, 'error' => 'Adresse email invalide.']);
+        exit;
+    }
+
+    // Validation du numéro de téléphone (format international simple)
+    if (!preg_match('/^\+\d{7,15}$/', $full_phone_number)) {
+        echo json_encode(['success' => false, 'error' => 'Numéro de téléphone invalide.']);
         exit;
     }
 
@@ -46,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Liaison des paramètres
-    $stmt->bind_param("s", $phone);
+    $stmt->bind_param("s", $full_phone_number);
 
     // Exécuter la requête
     if (!$stmt->execute()) {
@@ -75,19 +96,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Stocker l'OTP et les données utilisateur dans la session
     $_SESSION['otp'] = $otp;
+    $_SESSION['otp_expiry'] = time() + 300; // OTP valide pendant 5 minutes
     $_SESSION['user_data'] = [
         'firstname' => $firstname,
         'lastname'  => $lastname,
         'email'     => $email,
         'role'      => $role,
-        'phone'     => $phone
+        'phone'     => $full_phone_number
     ];
 
     // Envoyer l'OTP via InfoBip
-    // Remplacez ces valeurs par vos propres informations InfoBip
-    $apiKey = 'ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37';
-    $sender = 'GOVATHON'; // Nom ou numéro autorisé
-    $recipient = $phone;
+    $apiKey = 'ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37'; // Clé API directement intégrée
+    if (empty($apiKey)) {
+        echo json_encode(['success' => false, 'error' => 'Clé API non configurée.']);
+        exit;
+    }
+    $sender = 'GOVATHON';
+    $recipient = $full_phone_number;
     $message = "Votre code de vérification est : $otp";
 
     // Préparer les données pour la requête

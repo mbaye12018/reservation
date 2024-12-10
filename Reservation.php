@@ -795,7 +795,7 @@ startTimer();
 
     /* Corps principal du modal */
     .modal-content-body {
-        background-image: url('images/Govathon 2024 (1).png'); /* Chemin de votre image */
+        background-image: url('images/Govathon2024.png'); /* Chemin de votre image */
         background-size: contain; /* Adapte l'image pour qu'elle soit entièrement visible */
         background-repeat: no-repeat; /* Évite la répétition de l'image */
         background-position: center; /* Centre l'image dans le conteneur */
@@ -809,7 +809,7 @@ startTimer();
     }
 
     .modal-content-body {
-    background-image: url('images/Govathon 2024 (1).png'); /* Chemin de votre image */
+    background-image: url('images/Govathon2024.png'); /* Chemin de votre image */
     background-size: contain; /* Adapte l'image pour qu'elle soit entièrement visible */
     background-repeat: no-repeat; /* Évite la répétition de l'image */
     background-position: center; /* Centre l'image dans le conteneur */

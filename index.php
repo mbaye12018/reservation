@@ -24,12 +24,282 @@ try {
     echo 'Erreur de connexion : ' . $e->getMessage();
 }
 ?>
+<?php 
+
+$codes_telephoniques = array(
+  "Etats Unis d'Amérique" => 1,
+  "Canada" => 1,
+  "Fédération russe" => 7,
+  "Kazakhstan" => 7,
+  "Ouzbekistan" => 7,
+  "Egypte" => 20,
+  "Afrique du Sud" => 27,
+  "Grèce" => 30,
+  "Pays-Bas" => 31,
+  "Belgique" => 32,
+  "France" => 33,
+  "Espagne" => 34,
+  "Hongrie" => 36,
+  "Italie" => 39,
+  "Vatican" => 39,
+  "Roumanie" => 40,
+  "Liechtenstein" => 41,
+  "Suisse" => 41,
+  "Autriche" => 43,
+  "Royaume-Uni" => 44,
+  "Danemark" => 45,
+  "Suède" => 46,
+  "Norvège" => 47,
+  "Pologne" => 48,
+  "Allemagne" => 49,
+  "Pérou" => 51,
+  "Mexique Centre" => 52,
+  "Cuba" => 53,
+  "Argentine" => 54,
+  "Brésil" => 55,
+  "Chili" => 56,
+  "Colombie" => 57,
+  "Vénézuela" => 58,
+  "Malaisie" => 60,
+  "Australie" => 61,
+  "Ile Christmas" => 61,
+  "Indonésie" => 62,
+  "Philippines" => 63,
+  "Nouvelle-Zélande" => 64,
+  "Singapour" => 65,
+  "Thaà¯lande" => 66,
+  "Japon" => 81,
+  "Corée du Sud" => 82,
+  "Viêt-Nam" => 84,
+  "Chine" => 86,
+  "Turquie" => 90,
+  "Inde" => 91,
+  "Pakistan" => 92,
+  "Afghanistan" => 93,
+  "Sri Lanka" => 94,
+  "Union Birmane" => 95,
+  "Iran" => 98,
+  "Maroc" => 212,
+  "Algérie" => 213,
+  "Tunisie" => 216,
+  "Libye" => 218,
+  "Gambie" => 220,
+  "Sénégal" => 221,
+  "Mauritanie" => 222,
+  "Mali" => 223,
+  "Guinée" => 224,
+  "Cà´te d'Ivoire" => 225,
+  "Burkina Faso" => 226,
+  "Niger" => 227,
+  "Togo" => 228,
+  "Bénin" => 229,
+  "Maurice" => 230,
+  "Libéria" => 231,
+  "Sierra Leone" => 232,
+  "Ghana" => 233,
+  "Nigeria" => 234,
+  "République du Tchad" => 235,
+  "République Centrafricaine" => 236,
+  "Cameroun" => 237,
+  "Cap-Vert" => 238,
+  "Sao Tomé-et-Principe" => 239,
+  "Guinée équatoriale" => 240,
+  "Gabon" => 241,
+  "Bahamas" => 242,
+  "Congo" => 242,
+  "Congo Zaà¯re (Rep. Dem.)" => 243,
+  "Angola" => 244,
+  "Guinée-Bissao" => 245,
+  "Barbade" => 246,
+  "Ascension" => 247,
+  "Seychelles" => 248,
+  "Soudan" => 249,
+  "Rwanda" => 250,
+  "Ethiopie" => 251,
+  "Somalie" => 252,
+  "Djibouti" => 253,
+  "Kenya" => 254,
+  "Tanzanie" => 255,
+  "Ouganda" => 256,
+  "Burundi" => 257,
+  "Mozambique" => 258,
+  "Zambie" => 260,
+  "Madagascar" => 261,
+  "Réunion" => 262,
+  "Zimbabwe" => 263,
+  "Namibie" => 264,
+  "Malawi" => 265,
+  "Lesotho" => 266,
+  "Botswana" => 267,
+  "Antigua-et-Barbuda" => 268,
+  "Swaziland" => 268,
+  "Mayotte" => 269,
+  "République comorienne" => 269,
+  "Saint Hélène" => 290,
+  "Erythrée" => 291,
+  "Aruba" => 297,
+  "Ile Feroe" => 298,
+  "Groà Â«nland" => 299,
+  "Iles vierges américaines" => 340,
+  "Iles Caà¯mans" => 345,
+  "Espagne" => 349,
+  "Gibraltar" => 350,
+  "Portugal" => 351,
+  "Luxembourg" => 352,
+  "Irlande" => 353,
+  "Islande" => 354,
+  "Albanie" => 355,
+  "Malte" => 356,
+  "Chypre" => 357,
+  "Finlande" => 358,
+  "Bulgarie" => 359,
+  "Lituanie" => 370,
+  "Lettonie" => 371,
+  "Estonie" => 372,
+  "Moldavie" => 373,
+  "Arménie" => 374,
+  "Biélorussie" => 375,
+  "Andorre" => 376,
+  "Monaco" => 377,
+  "Saint-Marin" => 378,
+  "Ukraine" => 380,
+  "Yougoslavie" => 381,
+  "Croatie" => 385,
+  "Slovénie" => 386,
+  "Bosnie-Herzégovine" => 387,
+  "Macédoine" => 389,
+  "Italie" => 390,
+  "République Tchèque" => 420,
+  "Slovaquie" => 421,
+  "Liechtenstein" => 423,
+  "Bermudes" => 441,
+  "Grenade" => 473,
+  "Iles Falklands" => 500,
+  "Belize" => 501,
+  "Guatemala" => 502,
+  "Salvador" => 503,
+  "Honduras" => 504,
+  "Nicaragua" => 505,
+  "Costa Rica" => 506,
+  "Panama" => 507,
+  "Haà¯ti" => 509,
+  "Guadeloupe" => 590,
+  "Bolivie" => 591,
+  "Guyane" => 592,
+  "Equateur" => 593,
+  "Guinée Franà§aise" => 594,
+  "Paraguay" => 595,
+  "Antilles Franà§aises" => 596,
+  "Suriname" => 597,
+  "Uruguay" => 598,
+  "Antilles hollandaise" => 599,
+  "Saint Eustache" => 599,
+  "Saint Martin" => 599,
+  "Turks et caicos" => 649,
+  "Monteserrat" => 664,
+  "Saipan" => 670,
+  "Guam" => 671,
+  "Antarctique-Casey" => 672,
+  "Antarctique-Scott" => 672,
+  "Ile de Norfolk" => 672,
+  "Brunei Darussalam" => 673,
+  "Nauru" => 674,
+  "Papouasie - Nouvelle Guinée" => 675,
+  "Tonga" => 676,
+  "Iles Salomon" => 677,
+  "Vanuatu" => 678,
+  "Fidji" => 679,
+  "Palau" => 680,
+  "Wallis et Futuna" => 681,
+  "Iles Cook" => 682,
+  "Niue" => 683,
+  "Samoa Américaines" => 684,
+  "Samoa occidentales" => 685,
+  "Kiribati" => 686,
+  "Nouvelle-Calédonie" => 687,
+  "Tuvalu" => 688,
+  "Polynésie Franà§aise" => 689,
+  "Tokelau" => 690,
+  "Micronésie" => 691,
+  "Marshall" => 692,
+  "Sainte-Lucie" => 758,
+  "Dominique" => 767,
+  "Porto Rico" => 787,
+  "République Dominicaine" => 809,
+  "Saint-Vincent-et-les Grenadines" => 809,
+  "Corée du Nord" => 850,
+  "Hong Kong" => 852,
+  "Macao" => 853,
+  "Cambodge" => 855,
+  "Laos" => 856,
+  "Trinité-et-Tobago" => 868,
+  "Saint-Christophe-et-Niévès" => 869,
+  "Atlantique Est" => 871,
+  "Marisat (Atlantique Est)" => 872,
+  "Marisat (Atlantique Ouest)" => 873,
+  "Atlantique Ouest" => 874,
+  "Jamaà¯que" => 876,
+  "Bangladesh" => 880,
+  "Taiwan" => 886,
+  "Maldives" => 960,
+  "Liban" => 961,
+  "Jordanie" => 962,
+  "Syrie" => 963,
+  "Iraq" => 964,
+  "Koweà¯t" => 965,
+  "Arabie saoudite" => 966,
+  "Yémen" => 967,
+  "Oman" => 968,
+  "Palestine" => 970,
+  "Emirats arabes unis" => 971,
+  "Israà Â«l" => 972,
+  "Bahreà¯n" => 973,
+  "Qatar" => 974,
+  "Bhoutan" => 975,
+  "Mongolie" => 976,
+  "Népal" => 977,
+  "Tadjikistan (Rep. du)" => 992,
+  "Turkménistan" => 993,
+  "Azerbaà¯djan" => 994,
+  "Géorgie" => 995,
+  "Kirghizistan" => 996,
+  "Bahamas" => 1242,
+  "Barbade" => 1246,
+  "Anguilla" => 1264,
+  "Antigua et Barbuda " => 1268,
+  "Vierges Britanniques (Iles)" => 1284,
+  "Vierges Américaines (Iles)" => 1340,
+  "Cayman (Iles)" => 1345,
+  "Bermudes" => 1441,
+  "Grenade" => 1473,
+  "Turks et Caà¯cos (Iles)" => 1649,
+  "Montserrat" => 1664,
+  "Sainte-Lucie" => 1758,
+  "Dominique" => 1767,
+  "Saint-Vincent-et-Grenadines" => 1784,
+  "Porto Rico" => 1787,
+  "Hawaà¯" => 1808,
+  "Dominicaine (Rep.)" => 1809,
+  "Saint-Vincent-et-Grenadines" => 1809,
+  "Trinité-et-Tobago" => 1868,
+  "Saint-Kitts-et-Nevis" => 1869,
+  "Jamaà¯que" => 1876,
+  "Norfolk (Ile)" => 6723
+  );
+?>
+
 
 <!DOCTYPE html>
 <html class="wide wow-animation" lang="en">
   <head>
     <title>Home</title>
     <meta name="format-detection" content="telephone=no">
+    <!-- Include SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- Include SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -38,6 +308,10 @@ try {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.9.0/dist/dom-to-image-more.min.js"></script>
+       
+    <!-- Include SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
     
 
 
@@ -180,6 +454,12 @@ h2 {
   font-palette: --pinkAndGray;
 }
 
+.formindicatif{
+  border : none;
+  background-color : #efefef;
+
+}
+
 #countdown {
   font-weight: bold;
   font-size: 5rem;
@@ -244,6 +524,36 @@ h2 {
     border-radius: 5px; /* Optionnel : pour des coins arrondis */
     cursor: pointer; /* Pour indiquer qu'il est cliquable */
   }
+  /* Classe personnalisée pour la navbar */
+.custom-navbar {
+    background-color: #000000 !important; /* Noir */
+}
+
+/* S'assurer que la couleur de fond reste noire sur tous les écrans */
+@media (max-width: 767px) {
+    .custom-navbar {
+        background-color: #000000 !important; /* Noir */
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .custom-navbar {
+        background-color: #000000 !important; /* Noir */
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .custom-navbar {
+        background-color: #000000 !important; /* Noir */
+    }
+}
+
+@media (min-width: 1200px) {
+    .custom-navbar {
+        background-color: #000000 !important; /* Noir */
+    }
+}
+
  </style>
     
   </head>
@@ -261,37 +571,41 @@ h2 {
         <!-- Page Header-->
         <header class="section page-header" style="background-color:black">
           <!-- RD Navbar-->
-          <div class="rd-navbar-wrap"  style="background-color:black">
-            <nav  style="background-color:#222222" class="rd-navbar rd-navbar-classic" data-layout="rd-navbar-fixed" data-sm-layout="rd-navbar-fixed" data-md-layout="rd-navbar-fixed" data-md-device-layout="rd-navbar-fixed" data-lg-layout="rd-navbar-static" data-lg-device-layout="rd-navbar-fixed" data-xl-layout="rd-navbar-static" data-xl-device-layout="rd-navbar-static" data-xxl-layout="rd-navbar-static" data-xxl-device-layout="rd-navbar-static" data-lg-stick-up-offset="46px" data-xl-stick-up-offset="46px" data-xxl-stick-up-offset="46px" data-lg-stick-up="true" data-xl-stick-up="true" data-xxl-stick-up="true">
-              <div class="rd-navbar-main-outer">
-                <div class="rd-navbar-main">
-                  <!-- RD Navbar Panel-->
-                  <div class="rd-navbar-panel">
+          <div class="rd-navbar-wrap" style="background-color:black">
+    <nav class="rd-navbar rd-navbar-classic custom-navbar" data-layout="rd-navbar-fixed" data-sm-layout="rd-navbar-fixed" data-md-layout="rd-navbar-fixed" data-md-device-layout="rd-navbar-fixed" data-lg-layout="rd-navbar-static" data-lg-device-layout="rd-navbar-fixed" data-xl-layout="rd-navbar-static" data-xl-device-layout="rd-navbar-static" data-xxl-layout="rd-navbar-static" data-xxl-device-layout="rd-navbar-static" data-lg-stick-up-offset="46px" data-xl-stick-up-offset="46px" data-xxl-stick-up-offset="46px" data-lg-stick-up="true" data-xl-stick-up="true" data-xxl-stick-up="true">
+        <div class="rd-navbar-main-outer">
+            <div class="rd-navbar-main">
+                <!-- RD Navbar Panel-->
+                <div class="rd-navbar-panel">
                     <!-- RD Navbar Toggle-->
-                    <button class="rd-navbar-toggle" data-rd-navbar-toggle=".rd-navbar-nav-wrap"><span></span></button>
+                  
                     <!-- RD Navbar Brand-->
-                    <div class="rd-navbar-brand"><a class="brand" href="index.html"><img src="images/10.png" alt="" width="223" height="50"/></a></div>
-                   
-                  </div>
-                  <div class="rd-navbar-main-element">
-                    <div class="rd-navbar-nav-wrap">
-                      <!-- RD Navbar Share
-                      <div class="rd-navbar-share fl-bigmug-line-share27" data-rd-navbar-toggle=".rd-navbar-share-list">
-                        <ul class="list-inline rd-navbar-share-list">
-        
-                        </ul>
-                      </div>-->
-                      <ul class="rd-navbar-nav">
-                         <!-- Stylesheets
-                        <li class="rd-nav-item active"><a class="rd-nav-link" href="#home">Home</a></li>
-                       
-                      </ul>-->
+                    <div class="rd-navbar-brand">
+                        <a class="brand" href="index.html">
+                            <img src="images/10.png" alt="" width="223" height="50"/>
+                        </a>
                     </div>
-                  </div>
                 </div>
-              </div>
-            </nav>
-          </div>
+                <div class="rd-navbar-main-element">
+                    <div class="rd-navbar-nav-wrap">
+                        <!-- RD Navbar Share (Commenté) -->
+                        <!--<div class="rd-navbar-share fl-bigmug-line-share27" data-rd-navbar-toggle=".rd-navbar-share-list">
+                            <ul class="list-inline rd-navbar-share-list">
+                            </ul>
+                        </div>-->
+                        <ul class="rd-navbar-nav">
+                            <!-- Stylesheets (Commenté)
+                            <li class="rd-nav-item active"><a class="rd-nav-link" href="#home">Home</a></li>
+                            -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+
         </header>
         </br>
         <h3 class="titre" style="" > Finale et cérémonie de remise de lauréats</h3>
@@ -326,7 +640,7 @@ h2 {
     const minutesElement = document.getElementById('minutes');
     const secondsElement = document.getElementById('seconds');
     // Durée initiale en secondes (exemple : 3 jours, 2 heures, 30 minutes)
-    let totalSeconds = 16 * 24 * 3600 + 21 * 3600 + 54 * 60;
+    let totalSeconds = 13 * 24 * 3600 + 15 * 3600 + 50 * 60;
     function updateTimer() {
         const days = Math.floor(totalSeconds / (24 * 3600));
         const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
@@ -414,6 +728,9 @@ startTimer();
     .time-label {
         font-size: 0.8rem;
     }
+    .form-control{
+      backgound-color : red; !important
+    }
 }
 /* Media Queries for Extra Small Screens */
 @media (max-width: 480px) {
@@ -465,296 +782,110 @@ startTimer();
         
       </div>
      
-      <!-- See all ces
-      <section class="section section-sm section-first bg-default text-center" id="services">
-        <div class="container">
-          <div class="row row-30 justify-content-center">
-            <div class="col-md-7 col-lg-5 col-xl-6 text-lg-left wow fadeInUp"><img src="images/index-1-415x592.png" alt="" width="415" height="592"/>
-            </div>
-            <div class="col-lg-7 col-xl-6">
-              <div class="row row-30">
-                <div class="col-sm-6 wow fadeInRight">
-                  <article class="box-icon-modern box-icon-modern-custom">
-                    <div>
-                      <h3 class="box-icon-modern-big-title">What We Offer</h3>
-                      <div class="box-icon-modern-decor"></div><a class="button button-primary button-ujarak" href="#">View All Services</a>
-                    </div>
-                  </article>
-                </div>
-                <div class="col-sm-6 wow fadeInRight" data-wow-delay=".1s">
-                  <article class="box-icon-modern box-icon-modern-2">
-                    <div class="box-icon-modern-icon linearicons-phone-in-out"></div>
-                    <h5 class="box-icon-modern-title"><a href="#">CORPORATE<br>SOLUTIONS</a></h5>
-                    <div class="box-icon-modern-decor"></div>
-                    <p class="box-icon-modern-text">Need specific software for your company? We are ready to develop it!</p>
-                  </article>
-                </div>
-                <div class="col-sm-6 wow fadeInRight" data-wow-delay=".2s">
-                  <article class="box-icon-modern box-icon-modern-2">
-                    <div class="box-icon-modern-icon linearicons-headset"></div>
-                    <h5 class="box-icon-modern-title"><a href="#">CALL CENTER<br>SOLUTIONS</a></h5>
-                    <div class="box-icon-modern-decor"></div>
-                    <p class="box-icon-modern-text">Our experts provide custom products of any complexity for call centers.</p>
-                  </article>
-                </div>
-                <div class="col-sm-6 wow fadeInRight" data-wow-delay=".3s">
-                  <article class="box-icon-modern box-icon-modern-2">
-                    <div class="box-icon-modern-icon linearicons-outbox"></div>
-                    <h5 class="box-icon-modern-title"><a href="#">CLOUD<br>DEVELOPMENT</a></h5>
-                    <div class="box-icon-modern-decor"></div>
-                    <p class="box-icon-modern-text">We can also offer you reliable cloud development solutions.</p>
-                  </article>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>-->
 
-      <!-- Cta-->
-     
-<!-- Years of experience
-      <section class="section section-sm bg-default">
-        <div class="container">
-          <div class="row row-30 row-xl-24 justify-content-center align-items-center align-items-lg-start text-left">
-            <div class="col-md-6 col-lg-5 col-xl-4 text-center"><a class="text-img" href="#">
-                <div id="particles-js"></div><span class="counter">1ère</span></a></div>
-            <div class="col-sm-8 col-md-6 col-lg-5 col-xl-4">
-              <div class="text-width-extra-small offset-top-lg-24 wow fadeInUp">
-                <h3 class="title-decoration-lines-left">Edition 2024</h3>
-                <p class="text-gray-500">Suite à un long processus de préselection et de suivi, voici le gov'athon 2024 en chiffres</p><a class="button button-secondary button-pipaluk" href="https://govathon2024.fpubliquesn.com/" target="_blank">Visitez le site officiel</a>
-              </div>
-            </div>
-            <div class="col-sm-10 col-md-8 col-lg-6 col-xl-4 wow fadeInRight" data-wow-delay=".1s">
-              <div class="row justify-content-center border-2-column offset-top-xl-26">
-                <div class="col-9 col-sm-6">
-                  <div class="counter-amy">
-                    <div class="counter-amy-number"><span class="counter">120</span>
-                    </div>
-                    <h6 class="counter-amy-title">Projets soummis</h6>
-                  </div>
-                </div>
-                <div class="col-9 col-sm-6">
-                  <div class="counter-amy">
-                    <div class="counter-amy-number"><span class="counter">18</span>
-                    </div>
-                    <h6 class="counter-amy-title">Thèmes</h6>
-                  </div>
-                </div>
-                <div class="col-9 col-sm-6">
-                  <div class="counter-amy">
-                    <div class="counter-amy-number"><span class="counter">6</span>
-                    </div>
-                    <h6 class="counter-amy-title">Secteurs</h6>
-                  </div>
-                </div>
-                <div class="col-9 col-sm-6">
-                  <div class="counter-amy">
-                    <div class="counter-amy-number"><span class="counter">12</span>
-                    </div>
-                    <h6 class="counter-amy-title">Projets finalistes</h6>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-      </section>-->
-
-      <h1 style="color: #fff;"></h1>
-      <!-- What people Say
-          <section class="section section-sm section-bottom-70 section-fluid bg-default">
-            <div class="container-fluid">
-              <h2>What people Say</h2>
-              <div class="row row-50 row-sm">
-                <div class="col-md-6 col-xl-4 wow fadeInRight">
-              
-                  <article class="quote-modern quote-modern-custom">
-                    <div class="unit unit-spacing-md align-items-center">
-                      <div class="unit-left"><a class="quote-modern-figure" href="#"><img class="img-circles" src="images/user-11-75x75.jpg" alt="" width="75" height="75"/></a></div>
-                      <div class="unit-body">
-                        <h4 class="quote-modern-cite"><a href="#">Catherine Williams</a></h4>
-                        <p class="quote-modern-status">Regular client</p>
-                      </div>
-                    </div>
-                    <div class="quote-modern-text">
-                      <p class="q">RatherApp offers a high caliber of resources skilled in Microsoft Azure .NET, mobile and Quality Assurance. They became our true business partners over the past three years.</p>
-                    </div>
-                  </article>
-                </div>
-                <div class="col-md-6 col-xl-4 wow fadeInRight" data-wow-delay=".1s">
-                
-                  <article class="quote-modern quote-modern-custom">
-                    <div class="unit unit-spacing-md align-items-center">
-                      <div class="unit-left"><a class="quote-modern-figure" href="#"><img class="img-circles" src="images/user-12-75x75.jpg" alt="" width="75" height="75"/></a></div>
-                      <div class="unit-body">
-                        <h4 class="quote-modern-cite"><a href="#">Rupert Wood</a></h4>
-                        <p class="quote-modern-status">Regular client</p>
-                      </div>
-                    </div>
-                    <div class="quote-modern-text">
-                      <p class="q">RatherApp powered us with a competent team to develop products for banking services. The team has been delivering results within budget and time, which is amazing.</p>
-                    </div>
-                  </article>
-                </div>
-                <div class="col-md-6 col-xl-4 wow fadeInRight" data-wow-delay=".2s">
-                
-                  <article class="quote-modern quote-modern-custom">
-                    <div class="unit unit-spacing-md align-items-center">
-                      <div class="unit-left"><a class="quote-modern-figure" href="#"><img class="img-circles" src="images/user-20-75x75.jpg" alt="" width="75" height="75"/></a></div>
-                      <div class="unit-body">
-                        <h4 class="quote-modern-cite"><a href="#">Samantha Brown</a></h4>
-                        <p class="quote-modern-status">Regular client</p>
-                      </div>
-                    </div>
-                    <div class="quote-modern-text">
-                      <p class="q">RatherApp is a highly skilled and uniquely capable firm with multitudes of talent on-board. We have collaborated on a number of diverse projects that have been a great success.</p>
-                    </div>
-                  </article>
-                </div>
-              </div>
-            </div>
-          </section>-->
-      <!-- Contact information
-          <section class="section section-sm bg-default">
-            <div class="container">
-              <div class="row row-30 justify-content-center">
-                <div class="col-sm-8 col-md-6 col-lg-4">
-                  <article class="box-contacts">
-                    <div class="box-contacts-body">
-                      <div class="box-contacts-icon fl-bigmug-line-cellphone55"></div>
-                      <div class="box-contacts-decor"></div>
-                      <p class="box-contacts-link"><a href="tel:#">+1 323-913-4688</a></p>
-                      <p class="box-contacts-link"><a href="tel:#">+1 323-888-4554</a></p>
-                    </div>
-                  </article>
-                </div>
-                <div class="col-sm-8 col-md-6 col-lg-4">
-                  <article class="box-contacts">
-                    <div class="box-contacts-body">
-                      <div class="box-contacts-icon fl-bigmug-line-up104"></div>
-                      <div class="box-contacts-decor"></div>
-                      <p class="box-contacts-link"><a href="#">4730 Crystal Springs Dr, Los Angeles, CA 90027</a></p>
-                    </div>
-                  </article>
-                </div>
-                <div class="col-sm-8 col-md-6 col-lg-4">
-                  <article class="box-contacts">
-                    <div class="box-contacts-body">
-                      <div class="box-contacts-icon fl-bigmug-line-chat55"></div>
-                      <div class="box-contacts-decor"></div>
-                      <p class="box-contacts-link"><a href="mailto:#">mail@demolink.org</a></p>
-                      <p class="box-contacts-link"><a href="mailto:#">info@demolink.org</a></p>
-                    </div>
-                  </article>
-                </div>
-              </div>
-            </div>
-          </section>-->
-
-          <!-- Contact Form
-          <section class="section section-sm section-last bg-default text-left" id="contacts">
-            <div class="container">
-              <article class="title-classic">
-                <div class="title-classic-title">
-                  <h3>Get in touch</h3>
-                </div>
-                <div class="title-classic-text">
-                  <p>If you have any questions, just fill in the contact form, and we will answer you shortly.</p>
-                </div>
-              </article>
-              <form class="rd-form rd-form-variant-2 rd-mailform" data-form-output="form-output-global" data-form-type="contact" method="post" action="bat/rd-mailform.php">
-                <div class="row row-14 gutters-14">
-                  <div class="col-md-4">
-                    <div class="form-wrap">
-                      <input class="form-input" id="contact-your-name-2" type="text" name="name" data-constraints="@Required">
-                      <label class="form-label" for="contact-your-name-2">Your Name</label>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-wrap">
-                      <input class="form-input" id="contact-email-2" type="email" name="email" data-constraints="@Email @Required">
-                      <label class="form-label" for="contact-email-2">E-mail</label>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-wrap">
-                      <input class="form-input" id="contact-phone-2" type="text" name="phone" data-constraints="@Numeric">
-                      <label class="form-label" for="contact-phone-2">Phone</label>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="form-wrap">
-                      <label class="form-label" for="contact-message-2">Message</label>
-                      <textarea class="form-input textarea-lg" id="contact-message-2" name="message" data-constraints="@Required"></textarea>
-                    </div>
-                  </div>
-                </div>
-                <button class="button button-primary button-pipaluk" type="submit">Send Message</button>
-              </form>
-            </div>
-          </section>-->
- 
-      <!-- Page Footer-->
       <footer class="section section-fluid footer-minimal context-dark">
     
 </footer>
+<?php 
+// Trier le tableau des codes téléphoniques par ordre alphabétique des noms de pays
+ksort($codes_telephoniques, SORT_STRING | SORT_FLAG_CASE);
+?>
 <!-- Modal pour réserver la place -->
+
 <div class="modal fade" id="modalCta" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>Invitation Gov'athon 2024</h4>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="formRegister">
-                    <div class="row row-14 gutters-14">
-                        <div class="col-12">
-                            <div class="form-wrap">
-                                <input class="form-input" id="contact-modal-firstname" type="text" name="firstname" required>
-                                <label class="form-label" for="contact-modal-firstname">Prénom</label>
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Invitation Gov'athon 2024</h4>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRegister" method="POST" action="process_registration.php">
+                        <div class="row row-14 gutters-14">
+                            <!-- Prénom -->
+                            <div class="col-12 ">
+                                <div class="form-wrap">
+                                    <input class="form-input" id="contact-modal-firstname" type="text" name="firstname" required placeholder=" ">
+                                    <label class="form-label" for="contact-modal-firstname">Prénom</label>
+                                </div>
+                            </div>
+                            <!-- Nom -->
+                            <div class="col-12 ">
+                                <div class="form-wrap">
+                                    <input class="form-input" id="contact-modal-lastname" type="text" name="lastname" required placeholder=" ">
+                                    <label class="form-label" for="contact-modal-lastname">Nom</label>
+                                </div>
+                            </div>
+
+                            <!-- Téléphone -->
+                            <div class="col-12">
+                                <div class="form-wrap">
+                                    <label class="form-label" for="contact-modal-phone">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Téléphone</label>
+                                    <div class="input-group">
+                                                    <select class="formindicatif" id="country-code" name="country_code" required>
+                                    <option value="" disabled>Indicatif</option>
+                                    <?php
+                                    foreach ($codes_telephoniques as $country => $code) {
+                                        $country_escaped = htmlspecialchars($country, ENT_QUOTES, 'UTF-8');
+                                        $code_escaped = htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
+                                        
+                                        $selected = ($country === "Sénégal") ? ' selected' : '';
+                                        
+                                        echo "<option value=\"+$code_escaped\"$selected>+$code_escaped &mdash; </option>\n";
+                                    }
+                                    ?>
+                                
+                               </select>
+
+                                        <!-- Champ de Numéro de Téléphone -->
+                                        <input class="form-input" id="contact-modal-phone" type="tel" name="phone" placeholder="" required>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+
+
+
+
+
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <div class="form-wrap">
+                                    <input class="form-input" id="contact-modal-email" type="email" name="email" required placeholder=" ">
+                                    <label class="form-label" for="contact-modal-email">Email</label>
+                                </div>
+                            </div>   
+
+                            <!-- Fonction   etudiant particulier finaliste-->
+                            <div class="col-12">
+                                <div class="form-wrap">
+                                  
+                                  <select class="form-input" id="contact-modal-fonction" type="fonction" name="role" required placeholder=" ">
+                                  <option value="Null">-- Merci de choisir votre fonction --</option>
+                                    <option value="Etudiant" name="Etudiant">Etudiant</option>
+                                    <option value="Particulier" name="Particulier">Particulier</option>
+                                    <option value="Finalistes" name="Finalistes" >Finalistes</option>
+                                    <option value="Autres" name="Autres">Autres</option>
+                                  </select>
+                                  </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="form-wrap">
-                                <input class="form-input" id="contact-modal-lastname" type="text" name="lastname" required>
-                                <label class="form-label" for="contact-modal-lastname">Nom</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-wrap">
-                                <input class="form-input" id="contact-modal-phone" type="tel" name="phone" required>
-                                <label class="form-label" for="contact-modal-phone">Téléphone</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-wrap">
-                                <input class="form-input" id="contact-modal-email" type="email" name="email" required>
-                                <label class="form-label" for="contact-modal-email">Email</label>
-                            </div>
-                        </div>   
-                        <div class="col-12">
-                            <div class="form-wrap">
-                                <input class="form-input" id="contact-modal-role" type="text" name="role" required>
-                                <label class="form-label" for="contact-modal-role">Fonction</label>
-                            </div>
-                        </div>
+                        <br>
+                        <button class="btn btn-primary w-100" type="submit" id="generateBadgeButton">Valider</button>
+                    </form>
+                    <div id="successMessage" class="mt-3 text-center" style="display:none;">
+                        <p class="text-success">Vos données ont été soumises avec succès!</p>
+                        <button id="viewBadgeButton" class="btn btn-success">Voir votre badge</button>
                     </div>
-                    <br>
-                    <button class="buttonadd" type="submit" id="generateBadgeButton">Valider</button>
-                </form>
-                <div id="successMessage" style="display:none;">
-                    <p>Vos données ont été soumises avec succès!</p>
-                    <button id="viewBadgeButton" class="btn btn-primary" style="display:none;">Voir votre badge</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
 
@@ -769,7 +900,7 @@ startTimer();
             <!-- Zone principale du badge -->
             <div class="modal-body modal-content-body" style="position: relative;">
                 <!-- Ajout de l'image en fond -->
-                <img src="images/Govathon 2024 (1).png" alt="Background"
+                <img src="images/Govathon2024.png" alt="Background"
                      style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; z-index:-1;">
 
                 <!-- Conteneur principal -->
@@ -817,7 +948,7 @@ startTimer();
 
 /* Corps principal du modal */
 .modal-content-body {
-    background-image: url('images/Govathon 2024 (1).png'); /* Chemin de votre image */
+    background-image: url('images/Govathon2024.png'); /* Chemin de votre image */
     background-size: contain; /* Adapte l'image pour qu'elle soit entièrement visible */
     background-repeat: no-repeat; /* Évite la répétition de l'image */
     background-position: center; /* Centre l'image dans le conteneur */
@@ -831,7 +962,7 @@ startTimer();
 }
 
 .modal-content-body {
-    background-image: url('images/Govathon 2024 (1).png'); /* Chemin de votre image */
+    background-image: url('images/Govathon2024.png'); /* Chemin de votre image */
     background-size: contain; /* Adapte l'image pour qu'elle soit entièrement visible */
     background-repeat: no-repeat; /* Évite la répétition de l'image */
     background-position: center; /* Centre l'image dans le conteneur */
@@ -1055,141 +1186,112 @@ startTimer();
 <!-- Votre script principal -->
 <!-- Votre script principal -->
 <script>
-    // Fonction pour afficher les modals (utilise jQuery et Bootstrap)
-    function showModal(modalId) {
-        $('#' + modalId).modal('show');
-    }
+// Fonction pour afficher les modals (utilise jQuery et Bootstrap)
+function showModal(modalId) {
+    $('#' + modalId).modal('show');
+}
 
-    function hideModal(modalId) {
-        $('#' + modalId).modal('hide');
-    }
+function hideModal(modalId) {
+    $('#' + modalId).modal('hide');
+}
 
-    // Gestion du formulaire de réservation
-    document.getElementById('formRegister').addEventListener('submit', function(event) {
-        event.preventDefault(); // Empêche l'envoi traditionnel du formulaire
+// Fonction pour déclencher le téléchargement
+function downloadFile(type) {
+    // Construire l'URL avec le paramètre 'type'
+    const url = 'download_badge.php?type=' + encodeURIComponent(type);
+    window.location.href = url;
+}
 
-        var form = this;
-        var formData = new FormData(form);
+// Gestion du formulaire de réservation
+document.getElementById('formRegister').addEventListener('submit', function(event) {
+    event.preventDefault(); // Empêche l'envoi traditionnel du formulaire
 
-        // Envoyer les données au serveur pour générer et envoyer l'OTP
-        fetch('send_otp.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Réponse du serveur (send_otp.php):', data);
-            if (data.success) {
-                hideModal('modalCta'); // Fermer le modal de réservation
-                showModal('modalOtp'); // Afficher le modal OTP
-            } else {
-                alert('Erreur lors de l\'envoi de l\'OTP : ' + (data.error || 'Inconnue'));
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Une erreur s\'est produite.');
-        });
+    var form = this;
+    var formData = new FormData(form);
+
+    // Envoyer les données au serveur pour générer et envoyer l'OTP
+    fetch('send_otp.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Réponse du serveur (send_otp.php):', data);
+        if (data.success) {
+            hideModal('modalCta'); // Fermer le modal de réservation
+            showModal('modalOtp'); // Afficher le modal OTP
+        } else {
+            alert('Erreur lors de l\'envoi de l\'OTP : ' + (data.error || 'Inconnue'));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur s\'est produite.');
     });
+});
 
-    // Gestion de la vérification de l'OTP
-    document.getElementById('formOtp').addEventListener('submit', function(event) {
-        event.preventDefault(); // Empêche l'envoi traditionnel du formulaire
+// Gestion de la vérification de l'OTP
+document.getElementById('formOtp').addEventListener('submit', function(event) {
+    event.preventDefault(); // Empêche l'envoi traditionnel du formulaire
 
-        var form = this;
-        var formData = new FormData(form);
+    var form = this;
+    var formData = new FormData(form);
 
-        // Envoyer l'OTP au serveur pour vérification
-        fetch('verify_otp.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Réponse du serveur (verify_otp.php):', data);
-            if (data.success) {
-                hideModal('modalOtp'); // Fermer le modal OTP
+    // Envoyer l'OTP au serveur pour vérification
+    fetch('verify_otp.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Réponse du serveur (verify_otp.php):', data);
+        if (data.success) {
+            hideModal('modalOtp'); // Fermer le modal OTP
 
-                // Mettre à jour les éléments du badge avec les données reçues
-                document.getElementById('badgeFirstName').textContent = data.firstname;
-                document.getElementById('badgeLastName').textContent = data.lastname;
-                document.getElementById('badgePhone').textContent = data.phone;
-                document.getElementById('badgeRole').textContent = data.role;
-
-                // Mettre à jour l'image du QR Code dans la modal de prévisualisation
-                document.getElementById('qrCodeImage').src = data.qrCodePath;
-
-                // Afficher la modal de prévisualisation du badge
-                showModal('modalQrCodePreview');
-            } else {
-                // Afficher un message d'erreur dans le modal OTP
-                document.getElementById('otpError').style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Une erreur s\'est produite.');
-        });
-    });
-
-    // Gérer le téléchargement du badge en PNG ou PDF
-    document.getElementById('downloadBadgeButton').addEventListener('click', function () {
-        showModal('downloadFormatModal'); // Afficher la modal pour choisir le format
-    });
-
-    // Fonction de filtre pour exclure les boutons de téléchargement des captures
-    function excludeDownloadButtons(node) {
-        return !(node.id && node.id === 'downloadBadgeButton' || node.id === 'downloadAsPng' || node.id === 'downloadAsPdf');
-    }
-
-    // Télécharger en PNG
-    document.getElementById('downloadAsPng').addEventListener('click', function () {
-        const badgeElement = document.querySelector('.modal-content-body'); // Cibler le badge
-        domtoimage.toBlob(badgeElement, { filter: excludeDownloadButtons }) // Capturer en image blob en excluant les boutons
-            .then(function (blob) {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'badge.png'; // Nom du fichier PNG
-                link.click(); // Déclencher le téléchargement
-                hideModal('downloadFormatModal'); // Fermer la modal
-            })
-            .catch(function (error) {
-                console.error('Erreur lors du téléchargement PNG :', error);
-                alert('Une erreur est survenue.');
+            // Afficher une notification avec l'option de téléchargement via SweetAlert2
+            Swal.fire({
+                title: 'Télécharger votre badge',
+                text: 'Choisissez le format de téléchargement',
+                icon: 'success',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'PNG',
+                denyButtonText: 'PDF',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Télécharger le badge PNG via download_badge.php
+                    downloadFile('png');
+                } else if (result.isDenied) {
+                    // Télécharger le badge PDF via download_badge.php
+                    downloadFile('pdf');
+                }
+                // Si annulé, ne rien faire
             });
+
+            disableVoting(); // Fonction à implémenter si nécessaire
+        } else {
+            // Afficher un message d'erreur dans le modal OTP
+            var otpError = document.getElementById('otpError');
+            otpError.style.display = 'block';
+            otpError.textContent = data.error || 'Erreur lors de la vérification de l\'OTP.';
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur s\'est produite.');
     });
+});
 
-    // Télécharger en PDF
-    document.getElementById('downloadAsPdf').addEventListener('click', function () {
-        const badgeElement = document.querySelector('.modal-content-body'); // Cibler le badge
-        domtoimage.toPng(badgeElement, { filter: excludeDownloadButtons }) // Capturer en PNG pour PDF en excluant les boutons
-            .then(function (dataUrl) {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
+// Désactiver les boutons de vote après un vote réussi (optionnel)
+function disableVoting() {
+    // Cette fonction peut être utilisée pour désactiver des boutons si nécessaire
+    // Dans votre cas, si ce n'est pas lié aux votes, vous pouvez la laisser vide ou la supprimer
+}
 
-                // Adapter l'image au format PDF
-                const imgProps = pdf.getImageProperties(dataUrl);
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-                pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save('badge.pdf'); // Nom du fichier PDF
-                hideModal('downloadFormatModal'); // Fermer la modal
-            })
-            .catch(function (error) {
-                console.error('Erreur lors du téléchargement PDF :', error);
-                alert('Une erreur est survenue.');
-            });
-    });
-
-    // Fermer la modal de prévisualisation et recharger la page après un léger délai
-    $('#modalQrCodePreview').on('hidden.bs.modal', function () {
-        // Laisser le temps à la modal de se fermer avant de recharger la page
-        setTimeout(function() {
-            location.reload(); // Recharger la page après un court délai
-        }, 300);
-    });
 </script>
+
 
 
    
@@ -1215,3 +1317,20 @@ startTimer();
  <!-- coded by Himic
 ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37
 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+              
+
+
+              

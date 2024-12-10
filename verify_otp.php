@@ -9,8 +9,8 @@ error_reporting(E_ALL);
 // Définir le type de contenu comme JSON
 header('Content-Type: application/json; charset=UTF-8');
 
-// Configuration directe des informations Infobip
-$apiKeyWA = 'ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37'; // Remplacez par votre nouvelle clé API
+// Configuration des informations Infobip
+$apiKeyWA = 'ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37'; // Remplacez par votre clé API Infobip
 $senderWA = '+447860099299'; // Remplacez par votre numéro WhatsApp autorisé (format E.164 sans le préfixe 'whatsapp:')
 
 // Vérifier si la requête est en méthode POST
@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Chemin vers l'image de fond
-    $backgroundImage = 'images/Govathon 2024 (1).png'; // Renommé pour éviter les espaces et parenthèses
+    $backgroundImage = 'images/Govathon2024.png'; // Assurez-vous que ce fichier existe
     if (!file_exists($backgroundImage)) {
         echo json_encode(['success' => false, 'error' => "L'image de fond est introuvable."]);
         exit;
@@ -91,23 +91,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     require 'phpqrcode/qrlib.php';
 
-    // Génération du contenu vCard
-    $vcard = "BEGIN:VCARD\n";
-    $vcard .= "VERSION:3.0\n";
-    $vcard .= "FN:$firstname $lastname\n";
-    $vcard .= "N:$lastname;$firstname;;;\n";
-    $vcard .= "EMAIL:$email\n";
-    $vcard .= "TEL:$phone\n";
-    $vcard .= "TITLE:$role\n";
-    $vcard .= "END:VCARD";
+    // Préparer la requête pour insérer les données utilisateur
+    $stmt = $conn->prepare("INSERT INTO participant (firstname, lastname, email, role, phone, qr_code_path, badge_png_path, badge_pdf_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'error' => 'Échec de la préparation de la requête SQL : ' . $conn->error]);
+        exit;
+    }
 
-    // Générer le QR code
-    $qrOutputFile = 'qrcodes/badge_' . $firstname . '_' . $lastname . '.png';
-    QRcode::png($vcard, $qrOutputFile, QR_ECLEVEL_M, 4, 1);
+    // Initialiser les chemins de fichiers à insérer (temporaires pour l'instant)
+    $qrOutputFile = '';
+    $finalPngPath = '';
+    $finalPdfPath = '';
+
+    // Lier les paramètres (les chemins seront mis à jour après génération)
+    $temp_qr_path = '';
+    $temp_png_path = '';
+    $temp_pdf_path = '';
+    $stmt->bind_param("ssssssss", $firstname, $lastname, $email, $role, $phone, $temp_qr_path, $temp_png_path, $temp_pdf_path);
+
+    // Exécuter l'INSERT
+    if (!$stmt->execute()) {
+        echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'exécution de la requête : ' . $stmt->error]);
+        $stmt->close();
+        $conn->close();
+        exit;
+    }
+
+    // Récupérer l'ID généré automatiquement
+    $participant_id = $stmt->insert_id;
+
+    // Fermer la requête (maintenant que l'ID est récupéré)
+    $stmt->close();
+
+    // Créer un tableau associatif avec les informations à encoder (utiliser participant_id)
+    $qrData = [
+        'id' => $participant_id,
+        'firstname' => $firstname,
+        'lastname' => $lastname,
+        'email' => $email,
+        'role' => $role,
+        'phone' => $phone
+    ];
+
+    // Convertir le tableau en JSON
+    $qrContent = json_encode($qrData);
+
+    // Générer le QR code avec participant_id
+    $qrOutputFile = 'qrcodes/badge_' . $participant_id . '.png';
+    QRcode::png($qrContent, $qrOutputFile, QR_ECLEVEL_M, 4, 1);
 
     // Vérifier que le QR code a été généré
     if (!file_exists($qrOutputFile)) {
         echo json_encode(['success' => false, 'error' => 'Échec de la génération du QR Code.']);
+        // Optionnel : Supprimer l'entrée utilisateur si QR Code échoue
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
         exit;
     }
 
@@ -115,6 +153,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $background = imagecreatefrompng($backgroundImage);
     if (!$background) {
         echo json_encode(['success' => false, 'error' => 'Impossible de charger l\'image de fond.']);
+        // Optionnel : Supprimer l'entrée utilisateur et le QR Code si le background échoue
+        unlink($qrOutputFile);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
         exit;
     }
 
@@ -125,6 +167,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fontPath = __DIR__ . '/fonts/LiberationSans-Bold.ttf';
     if (!file_exists($fontPath)) {
         echo json_encode(['success' => false, 'error' => 'Le fichier de police est introuvable.']);
+        // Optionnel : Supprimer l'entrée utilisateur, le QR Code et le background si la police échoue
+        imagedestroy($background);
+        unlink($qrOutputFile);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
         exit;
     }
 
@@ -147,6 +194,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $qrImage = imagecreatefrompng($qrOutputFile);
     if (!$qrImage) {
         echo json_encode(['success' => false, 'error' => 'Impossible de charger le QR code généré.']);
+        // Optionnel : Supprimer l'entrée utilisateur, le QR Code et le background si le QR Code échoue
+        imagedestroy($background);
+        unlink($qrOutputFile);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
         exit;
     }
 
@@ -158,8 +210,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     imagecopyresampled($background, $qrImage, $qrX, $qrY, 0, 0, $qrWidth, $qrHeight, imagesx($qrImage), imagesy($qrImage));
 
-    // Enregistrer le badge PNG final
-    $finalPngPath = 'badges_png/badge_final_' . $firstname . '_' . $lastname . '.png';
+    // Enregistrer le badge PNG final avec participant_id
+    $finalPngPath = 'badges_png/badge_final_' . $participant_id . '.png';
     imagepng($background, $finalPngPath);
     imagedestroy($background);
     imagedestroy($qrImage);
@@ -167,12 +219,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Vérifier que le badge PNG a été généré
     if (!file_exists($finalPngPath)) {
         echo json_encode(['success' => false, 'error' => 'Échec de la génération du badge PNG.']);
+        // Optionnel : Supprimer l'entrée utilisateur, le QR Code et le background si le badge PNG échoue
+        unlink($qrOutputFile);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
         exit;
     }
 
     // Génération du PDF avec FPDF
     if (!file_exists('fpdf/fpdf.php')) {
         echo json_encode(['success' => false, 'error' => 'La librairie FPDF est introuvable.']);
+        // Optionnel : Supprimer l'entrée utilisateur, le QR Code, le badge PNG et le background si FPDF échoue
+        unlink($qrOutputFile);
+        unlink($finalPngPath);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
         exit;
     }
     require('fpdf/fpdf.php');
@@ -184,60 +245,97 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Assurez-vous que l'image de fond est en format JPEG ou PNG sans transparence
     // Ajustez les dimensions selon le format de la page (par défaut A4 : 210x297 mm)
     $pdf->Image($backgroundImage, 0, 0, 210, 297);
+$pdf->SetFont('Arial','B',26); // Police Arial, Gras, Taille 26
+$pdf->Ln(120); // Saut de ligne de 120 mm
 
-    // Ajouter le texte par-dessus l'image de fond
-    $pdf->SetFont('Arial','B',26);
+// Définir la police pour "Prenom" et "Nom" en Gras avec une taille augmentée
+$pdf->SetFont('Arial','B',16); // Police Arial, Gras, Taille 16
 
-    $pdf->Ln(120);
-    $pdf->SetFont('Arial','',12);
-    $pdf->Cell(40,10,"Prénom: $firstname");
-    $pdf->Ln(10);
-    $pdf->Cell(40,10,"Nom: $lastname");
-    $pdf->Ln(10);
+// Ajouter "Prenom" en Gras
+$pdf->Cell(40,10,"Prenom: $firstname", 0, 1, 'L'); // Cellule largeur 40 mm, hauteur 10 mm, alignement à gauche
+$pdf->Ln(10); // Saut de ligne de 10 mm
 
-    $pdf->Cell(40,10,"Tel: $phone");
-    $pdf->Ln(10);
-    $pdf->Cell(40,10,"Fonction: $role");
-    $pdf->Ln(20);
+// Ajouter "Nom" en Gras
+$pdf->Cell(40,10,"Nom: $lastname", 0, 1, 'L');
+$pdf->Ln(10);
 
-    // Ajouter le QR code dans le PDF
-    // Ajustez les coordonnées selon vos besoins et le positionnement de l'image de fond
-    $pdf->Image($qrOutputFile, 80, 150, 50, 50); // Exemple : position (80, 150) mm, taille 50x50 mm
+// Définir la police pour les autres champs (Police normale, Taille augmentée)
+$pdf->SetFont('Arial','',14); // Police Arial, Normal, Taille 14
 
-    $finalPdfPath = 'badges_pdf/badge_final_' . $firstname . '_' . $lastname . '.pdf';
+// Ajouter "Tel"
+$pdf->Cell(40,10,"Tel: $phone", 0, 1, 'L');
+$pdf->Ln(10);
+
+// Ajouter "Fonction"
+$pdf->Cell(40,10,"Fonction: $role", 0, 1, 'L');
+$pdf->Ln(20); // Saut de ligne de 20 mm
+
+// Ajouter le QR code dans le PDF
+// Ajuster les coordonnées Y pour déplacer le QR code plus bas (par exemple de 150 à 160)
+$pdf->Image($qrOutputFile, 80, 160, 50, 50); // Position X=80 mm, Y=160 mm, Taille 50x50 mm
+
+
+    // Enregistrer le PDF final avec participant_id
+    $finalPdfPath = 'badges_pdf/badge_final_' . $participant_id . '.pdf';
     $pdf->Output('F', $finalPdfPath);
 
     // Vérifier que le PDF a été généré
     if (!file_exists($finalPdfPath)) {
         echo json_encode(['success' => false, 'error' => 'Échec de la génération du PDF.']);
-        exit;
-    }
-
-    // Préparation de l'INSERT avec les chemins des fichiers
-    $stmt = $conn->prepare("INSERT INTO participant (firstname, lastname, email, role, phone, qr_code_path, badge_png_path, badge_pdf_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    if (!$stmt) {
-        echo json_encode(['success' => false, 'error' => 'Échec de la préparation de la requête SQL : ' . $conn->error]);
-        exit;
-    }
-
-    // Liaison des paramètres
-    $stmt->bind_param("ssssssss", $firstname, $lastname, $email, $role, $phone, $qrOutputFile, $finalPngPath, $finalPdfPath);
-
-    // Exécution de la requête
-    if (!$stmt->execute()) {
-        echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'exécution de la requête : ' . $stmt->error]);
-        $stmt->close();
+        // Optionnel : Supprimer l'entrée utilisateur, le QR Code, le badge PNG, le PDF et le background si le PDF échoue
+        unlink($qrOutputFile);
+        unlink($finalPngPath);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
         $conn->close();
         exit;
     }
 
-    // Fermer la requête et la connexion
-    $stmt->close();
+    // Mettre à jour les chemins des fichiers dans la base de données
+    $update_stmt = $conn->prepare("UPDATE participant SET qr_code_path = ?, badge_png_path = ?, badge_pdf_path = ? WHERE id = ?");
+    if (!$update_stmt) {
+        echo json_encode(['success' => false, 'error' => 'Échec de la préparation de la mise à jour SQL : ' . $conn->error]);
+        // Optionnel : Supprimer les fichiers et l'entrée utilisateur si la mise à jour échoue
+        unlink($qrOutputFile);
+        unlink($finalPngPath);
+        unlink($finalPdfPath);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
+        exit;
+    }
+
+    $update_stmt->bind_param("sssi", $qrOutputFile, $finalPngPath, $finalPdfPath, $participant_id);
+
+    if (!$update_stmt->execute()) {
+        echo json_encode(['success' => false, 'error' => 'Erreur lors de la mise à jour de la base de données : ' . $update_stmt->error]);
+        // Optionnel : Supprimer les fichiers et l'entrée utilisateur si la mise à jour échoue
+        $update_stmt->close();
+        unlink($qrOutputFile);
+        unlink($finalPngPath);
+        unlink($finalPdfPath);
+        $conn->query("DELETE FROM participant WHERE id = $participant_id");
+        $conn->close();
+        exit;
+    }
+
+    $update_stmt->close();
     $conn->close();
 
     // Nettoyer les données de la session
     unset($_SESSION['otp']);
     unset($_SESSION['user_data']);
+
+    // **Définir l'identifiant unique pour le téléchargement avec participant_id**
+    $_SESSION['download_badge_id'] = $participant_id;
+
+    // Générer les URLs absolues pour les badges
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+    $basePath = rtrim(dirname($_SERVER['PHP_SELF']), '/\\') . '/';
+
+    // Construction des URLs en tenant compte du chemin relatif
+    $badgePngUrl = $protocol . $host . '/' . $finalPngPath;
+    $badgePdfUrl = $protocol . $host . '/' . $finalPdfPath;
+    $qrCodeUrl = $protocol . $host . '/' . $qrOutputFile;
 
     // Envoyer le message WhatsApp via Infobip
     // Préparer les données pour la requête WhatsApp
@@ -256,10 +354,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             'placeholders' => [$firstname, $lastname] // Remplacez par les valeurs de vos placeholders
                         ]
                     ],
-                    'language' => 'en_GB' // Remplacez par la langue appropriée
+                    'language' => 'fr_FR' // Remplacez par la langue appropriée
                 ],
                 'callbackData' => 'Données de rappel', // Optionnel : données de rappel
-                'notifyUrl' => 'https://www.votresite.com/whatsapp_callback', // Optionnel : URL de notification
                 'urlOptions' => [
                     'shortenUrl' => true,
                     'trackClicks' => true,
@@ -298,12 +395,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $waMessage = 'Échec de l\'envoi du message WhatsApp.';
     }
 
-    // Réponse JSON finale avec les chemins des fichiers et le statut du WhatsApp
+    // Réponse JSON finale avec les URLs des fichiers et le statut du WhatsApp
     $response = [
         'success'      => true,
-        'qrCodePath'   => $qrOutputFile,
-        'badgePngPath' => $finalPngPath,
-        'badgePdfPath' => $finalPdfPath,
+        'qrCodeUrl'    => $qrCodeUrl,
+        'badgePngUrl'  => $badgePngUrl,
+        'badgePdfUrl'  => $badgePdfUrl,
         'firstname'    => $firstname,
         'lastname'     => $lastname,
         'email'        => $email,
