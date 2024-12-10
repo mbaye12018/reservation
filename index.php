@@ -634,34 +634,43 @@ h2 {
     </div>
     </div>
     <script>
-      function startTimer() {
-    const daysElement = document.getElementById('days');
-    const hoursElement = document.getElementById('hours');
-    const minutesElement = document.getElementById('minutes');
-    const secondsElement = document.getElementById('seconds');
-    // Durée initiale en secondes (exemple : 3 jours, 2 heures, 30 minutes)
-    let totalSeconds = 13 * 24 * 3600 + 15 * 3600 + 50 * 60;
-    function updateTimer() {
-        const days = Math.floor(totalSeconds / (24 * 3600));
-        const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        // Mettre à jour le contenu des éléments
-        daysElement.textContent = String(days).padStart(2, '0');
-        hoursElement.textContent = String(hours).padStart(2, '0');
-        minutesElement.textContent = String(minutes).padStart(2, '0');
-        secondsElement.textContent = String(seconds).padStart(2, '0');
-        // Réduire le temps si toujours actif
-        if (totalSeconds > 0) {
-            totalSeconds--;
-        } else {
-            clearInterval(timerInterval);
+        function startCountdown(targetDate) {
+            const daysElement = document.getElementById('days');
+            const hoursElement = document.getElementById('hours');
+            const minutesElement = document.getElementById('minutes');
+            const secondsElement = document.getElementById('seconds');
+
+            function updateTimer() {
+                const now = new Date();
+                const timeDifference = targetDate - now;
+
+                if (timeDifference <= 0) {
+                    clearInterval(timerInterval);
+                    daysElement.textContent = '00';
+                    hoursElement.textContent = '00';
+                    minutesElement.textContent = '00';
+                    secondsElement.textContent = '00';
+                    return;
+                }
+
+                const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                daysElement.textContent = String(days).padStart(2, '0');
+                hoursElement.textContent = String(hours).padStart(2, '0');
+                minutesElement.textContent = String(minutes).padStart(2, '0');
+                secondsElement.textContent = String(seconds).padStart(2, '0');
+            }
+
+            const timerInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Appel initial pour éviter d'attendre 1 seconde
         }
-    }
-    updateTimer();
-    const timerInterval = setInterval(updateTimer, 1000);
-}
-startTimer();
+
+        // Date cible : 23 décembre 2024 à minuit
+        const targetDate = new Date('2024-12-23T00:00:00');
+        startCountdown(targetDate);
     </script>
 
     <style>.timer {
