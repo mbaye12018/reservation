@@ -9,8 +9,8 @@ error_reporting(E_ALL);
 
 
 // Configuration Infobip - REMPLACEZ CES VALEURS PAR VOS PROPRES INFORMATIONS
-$apiKeyWA = '5d0ac34965d0f93b2c19ea8998329ead-570fccbf-2fb9-4aa1-961b-cbc4fd4e4aa4'; // Remplacez par votre clé API Infobip
-$senderWA = '+447860099299'; // Remplacez par votre numéro WhatsApp autorisé (format E.164 avec '+')
+$apiKeyWA = 'ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37'; // Remplacez par votre clé API Infobip
+$senderWA = '+447307810250'; // Remplacez par votre numéro WhatsApp autorisé (format E.164 avec '+')
 $templateName = 'authentication'; // Nom exact de votre template approuvé dans Infobip
 $templateId = '1548546645941697'; // ID de modèle du template (si nécessaire)
 

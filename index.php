@@ -766,12 +766,12 @@ h2 {
                   </h5>
                   
                   <p class="text-width-large" data-caption-animate="fadeInRight" data-caption-delay="100" style="margin-top:50px">
-                  Assistez à la cérémonie de remise des prix des lauréats du Gov'athon 2024, catalyseur de la réforme du service public.
+                
                   </p>
                     <!-- Swiper
                   <a class="button button-primary " href="#modalCta" data-toggle="modal" data-caption-animate="fadeInUp" data-caption-delay="200">Réserver</a>-->
                   <br>
-                  <h5 style="color:#fff">Places restantes:&nbsp;<?php echo  $placesRestantes ?> </h5>
+                  <h5 style="color:#fff;margin-top :120px;font-size:25px">Places restantes:&nbsp;<?php echo  $placesRestantes ?> </h5>
                   <br>
                   <button type="button" style="background-color:#f1da18"  href="#modalCta" data-toggle="modal" data-caption-animate="fadeInUp" data-caption-delay="200" class="btn btn-success">Je participe à l'événement</button>
                   <h1>&nbsp;</h1>
@@ -925,9 +925,7 @@ ksort($codes_telephoniques, SORT_STRING | SORT_FLAG_CASE);
                     </div>
 
                     <!-- Conteneur séparé pour le QR Code -->
-                    <div class="qr-code-section">
-                        <img id="qrCodeImage" src="images/qr_code.png" alt="QR Code">
-                    </div>
+                    
                 </div>
 
                 <!-- Bouton de téléchargement -->
@@ -1164,36 +1162,32 @@ ksort($codes_telephoniques, SORT_STRING | SORT_FLAG_CASE);
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 
-
-<!-- Modal de saisie de l'OTP -->
+<!-- Modal de saisie de l'OTP avec affichage de l'email -->
 <div class="modal fade" id="modalOtp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4>Vérification OTP</h4>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <button class="close" type="button" data-dismiss="modal" aria-label="Fermer">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
             <div class="modal-body">
+                <p>Un code de vérification a été envoyé à <strong id="userEmailDisplay"></strong>.</p>
                 <form id="formOtp">
                     <div class="form-group">
-                        <label for="otp">Entrez le code OTP envoyé sur votre téléphone :</label>
-                        <input type="text" class="form-control" id="otp" name="otp" required pattern="\d{6}" maxlength="6">
+                        <label for="otp">Entrez le code OTP :</label>
+                        <input type="text" class="form-control" id="otp" name="otp" required pattern="\d{6}" maxlength="6" placeholder="123456">
                     </div>
                     <button type="submit" class="btn btn-primary">Vérifier</button>
                 </form>
                 <div id="otpError" class="text-danger mt-2" style="display:none;">
-                    Code OTP incorrect. Veuillez réessayer.
+                    Code OTP incorrect ou expiré. Veuillez réessayer.
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-<!-- Votre script principal -->
-<!-- Votre script principal -->
 <script>
 // Fonction pour afficher les modals (utilise jQuery et Bootstrap)
 function showModal(modalId) {
@@ -1218,6 +1212,9 @@ document.getElementById('formRegister').addEventListener('submit', function(even
     var form = this;
     var formData = new FormData(form);
 
+    // Extraire l'email pour l'afficher dans le modal OTP
+    var userEmail = formData.get('email');
+
     // Envoyer les données au serveur pour générer et envoyer l'OTP
     fetch('send_otp.php', {
         method: 'POST',
@@ -1228,6 +1225,8 @@ document.getElementById('formRegister').addEventListener('submit', function(even
         console.log('Réponse du serveur (send_otp.php):', data);
         if (data.success) {
             hideModal('modalCta'); // Fermer le modal de réservation
+            // Afficher l'email dans le modal OTP
+            document.getElementById('userEmailDisplay').textContent = userEmail;
             showModal('modalOtp'); // Afficher le modal OTP
         } else {
             alert('Erreur lors de l\'envoi de l\'OTP : ' + (data.error || 'Inconnue'));
@@ -1292,16 +1291,7 @@ document.getElementById('formOtp').addEventListener('submit', function(event) {
         alert('Une erreur s\'est produite.');
     });
 });
-
-// Désactiver les boutons de vote après un vote réussi (optionnel)
-function disableVoting() {
-    // Cette fonction peut être utilisée pour désactiver des boutons si nécessaire
-    // Dans votre cas, si ce n'est pas lié aux votes, vous pouvez la laisser vide ou la supprimer
-}
-
 </script>
-
-
 
    
 
