@@ -1,164 +1,124 @@
 <?php
-session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-header('Content-Type: application/json');
+// send_otp.php
 
-// Configuration des erreurs
-if (getenv('ENV') !== 'production') {
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', 0);
-    error_reporting(0);
-}
+// Désactiver l'affichage des erreurs en production
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL);
 
 // Définir le type de contenu comme JSON
-header('Content-Type: application/json; charset=UTF-8');
+header('Content-Type: application/json');
 
-// Inclure l'autoload de Composer
-require '/vendor/autoload.php'; // Assurez-vous que le chemin est correct
+// Inclure l'autoloader de Composer
+$autoloadPath = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoloadPath)) {
+    echo json_encode(['success' => false, 'error' => 'Autoloader Composer introuvable.']);
+    error_log("send_otp.php: Autoloader Composer introuvable.");
+    exit;
+}
+
+require $autoloadPath;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Informations de connexion à la base de données
-$servername = "localhost";
-$username_db = "root";
-$password_db = "";
-$dbname = "reservation";
+// Démarrer la session pour stocker l'OTP et les données utilisateur
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Créer une connexion
-$conn = new mysqli($servername, $username_db, $password_db, $dbname);
+// Fonction pour générer un OTP à 6 chiffres
+function generateOTP($length = 6) {
+    $otp = '';
+    for ($i = 0; $i < $length; $i++) {
+        $otp .= mt_rand(0, 9);
+    }
+    return $otp;
+}
 
-// Vérifier la connexion
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'error' => 'Échec de la connexion à la base de données : ' . $conn->connect_error]);
+// Vérifier si la requête est une méthode POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'error' => 'Méthode de requête invalide.']);
+    error_log("send_otp.php: Méthode de requête invalide.");
     exit;
 }
 
-// Vérifier si la requête est en méthode POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Récupération et validation des données
-    $firstname     = isset($_POST['firstname']) ? htmlspecialchars(trim($_POST['firstname'])) : '';
-    $lastname      = isset($_POST['lastname'])  ? htmlspecialchars(trim($_POST['lastname']))  : '';
-    $email         = isset($_POST['email'])     ? htmlspecialchars(trim($_POST['email']))     : '';
-    $role          = isset($_POST['role'])      ? htmlspecialchars(trim($_POST['role']))      : '';
-    $country_code  = isset($_POST['country_code']) ? htmlspecialchars(trim($_POST['country_code'])) : '';
-    $phone         = isset($_POST['phone'])     ? htmlspecialchars(trim($_POST['phone']))     : '';
+// Récupérer et valider les données du formulaire
+$firstname = filter_input(INPUT_POST, 'firstname', FILTER_SANITIZE_STRING);
+$lastname = filter_input(INPUT_POST, 'lastname', FILTER_SANITIZE_STRING);
+$phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
+$country_code = filter_input(INPUT_POST, 'country_code', FILTER_SANITIZE_STRING);
+$email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+$role = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_STRING);
 
-    // Vérifier que tous les champs sont remplis
-    if (empty($firstname) || empty($lastname) || empty($email) || empty($role) || empty($country_code) || empty($phone)) {
-        echo json_encode(['success' => false, 'error' => 'Tous les champs sont requis.']);
-        exit;
-    }
-
-    // Combiner l'indicatif et le numéro
-    $full_phone_number = $country_code . $phone;
-
-    // Validation de l'email
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['success' => false, 'error' => 'Adresse email invalide.']);
-        exit;
-    }
-
-    // Validation du numéro de téléphone (format international simple)
-    if (!preg_match('/^\+\d{7,15}$/', $full_phone_number)) {
-        echo json_encode(['success' => false, 'error' => 'Numéro de téléphone invalide.']);
-        exit;
-    }
-
-    // Préparer la requête pour vérifier l'existence de l'email
-    $stmt = $conn->prepare("SELECT id FROM participant WHERE email = ?");
-    if (!$stmt) {
-        echo json_encode(['success' => false, 'error' => 'Erreur de préparation de la requête SQL : ' . $conn->error]);
-        exit;
-    }
-
-    // Liaison des paramètres
-    $stmt->bind_param("s", $email);
-
-    // Exécuter la requête
-    if (!$stmt->execute()) {
-        echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'exécution de la requête : ' . $stmt->error]);
-        $stmt->close();
-        $conn->close();
-        exit;
-    }
-
-    // Stocker le résultat
-    $stmt->store_result();
-
-    // Vérifier si l'email existe déjà
-    if ($stmt->num_rows > 0) {
-        echo json_encode(['success' => false, 'error' => 'Cet email est déjà enregistré.']);
-        $stmt->close();
-        $conn->close();
-        exit;
-    }
-
-    // Fermer la requête préparée
-    $stmt->close();
-
-    // Générer un OTP aléatoire de 6 chiffres
-    $otp = rand(100000, 999999);
-
-    // Stocker l'OTP et les données utilisateur dans la session
-    $_SESSION['otp'] = $otp;
-    $_SESSION['otp_expiry'] = time() + 300; // OTP valide pendant 5 minutes
-    $_SESSION['user_data'] = [
-        'firstname' => $firstname,
-        'lastname'  => $lastname,
-        'email'     => $email,
-        'role'      => $role,
-        'phone'     => $full_phone_number
-    ];
-
-    // Configuration de PHPMailer avec Gmail SMTP
-    $mail = new PHPMailer(true);
-
-    try {
-        // Configuration du serveur SMTP
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // Serveur SMTP de Gmail
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'babacar12018@gmail.com'; // Votre adresse email Gmail
-        $mail->Password   = 'VOTRE_MOT_DE_PASSE_APP'; // Votre mot de passe d'application Gmail
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Utilisez 'ssl' si nécessaire
-        $mail->Port       = 587; // Port SMTP (465 pour SSL)
-
-        // Destinataires
-        $mail->setFrom('babacar12018@gmail.com', 'Gov\'athon 2024'); // Doit correspondre à l'adresse Gmail
-        $mail->addAddress($email, "$firstname $lastname");
-
-        // Contenu de l'email
-        $mail->isHTML(true);
-        $mail->Subject = 'Votre code de vérification Gov\'athon 2024';
-        $mail->Body    = "
-            <h3>Bonjour $firstname $lastname,</h3>
-            <p>Merci de vous être inscrit à Gov'athon 2024.</p>
-            <p>Votre code de vérification est : <strong>$otp</strong></p>
-            <p>Ce code est valide pendant 5 minutes.</p>
-            <p>Cordialement,<br>L'équipe Gov'athon</p>
-        ";
-
-        $mail->send();
-        echo json_encode(['success' => true, 'message' => 'OTP envoyé avec succès par email.']);
-    } catch (Exception $e) {
-        // Supprimer les données de session si l'envoi échoue
-        unset($_SESSION['otp']);
-        unset($_SESSION['otp_expiry']);
-        unset($_SESSION['user_data']);
-
-        echo json_encode(['success' => false, 'error' => 'Échec de l\'envoi de l\'email : ' . $mail->ErrorInfo]);
-    }
-
-    // Fermer la connexion à la base de données
-    $conn->close();
-} else {
-    // Si la requête n'est pas en POST, retourner une erreur
-    echo json_encode(['success' => false, 'error' => 'Méthode de requête invalide.']);
+// Vérifier les champs obligatoires
+if (!$firstname || !$lastname || !$phone || !$country_code || !$email || !$role) {
+    echo json_encode(['success' => false, 'error' => 'Veuillez remplir tous les champs obligatoires.']);
+    error_log("send_otp.php: Champs obligatoires manquants.");
     exit;
+}
+
+// Générer l'OTP
+$otp = generateOTP();
+
+// Stocker l'OTP et les données utilisateur dans la session avec l'heure de génération
+$_SESSION['otp'] = $otp;
+$_SESSION['user_data'] = [
+    'firstname' => $firstname,
+    'lastname'  => $lastname,
+    'phone'     => $phone,
+    'country_code' => $country_code,
+    'email'     => $email,
+    'role'      => $role
+];
+$_SESSION['otp_generated_time'] = time();
+$_SESSION['otp_attempts'] = 0;
+
+// Configuration SMTP pour Gmail
+$smtpHost = 'smtp.gmail.com';                    // Serveur SMTP de Gmail
+$smtpUsername = 'babacar12018@gmail.com';        // Votre adresse email Gmail
+$smtpPassword = 'cnjxwwqntexkquru';              // Mot de passe d'application Gmail
+$smtpPort = 587;                                 // Port SMTP de Gmail (587 pour TLS)
+$smtpEncryption = 'tls';                         // Type de chiffrement (tls ou ssl)
+
+// Informations de l'expéditeur
+$fromEmail = 'babacar12018@gmail.com';           // Même que $smtpUsername
+$fromName = "Govathon 2024";                      // Nom de l'expéditeur
+
+// Préparer l'email avec PHPMailer
+$mail = new PHPMailer(true);
+
+try {
+    // Configuration du serveur SMTP
+    $mail->isSMTP();                                            // Utiliser SMTP
+    $mail->Host       = $smtpHost;                              // Définir le serveur SMTP
+    $mail->SMTPAuth   = true;                                   // Activer l'authentification SMTP
+    $mail->Username   = $smtpUsername;                          // Nom d'utilisateur SMTP
+    $mail->Password   = $smtpPassword;                          // Mot de passe SMTP
+    $mail->SMTPSecure = $smtpEncryption;                        // Activer le chiffrement TLS
+    $mail->Port       = $smtpPort;                              // Port TCP à utiliser
+
+    // Expéditeur et destinataire
+    $mail->setFrom($fromEmail, $fromName);
+    $mail->addAddress($email, "$firstname $lastname");          // Ajouter un destinataire
+
+    // Contenu de l'email
+    $mail->isHTML(true);                                        // Définir le format de l'email en HTML
+    $mail->Subject = 'Votre Code de Vérification OTP';
+    $mail->Body    = "<p>Bonjour $firstname $lastname,</p>
+                      <p>Votre code de vérification est : <strong>$otp</strong></p>
+                      <p>Ce code est valable pendant 10 minutes.</p>
+                      <p>Merci de votre inscription à Gov'athon 2024.</p>";
+    $mail->AltBody = "Bonjour $firstname $lastname,\n\nVotre code de vérification est : $otp\n\nCe code est valable pendant 10 minutes.\n\nMerci de votre inscription à Gov'athon 2024.";
+
+    // Envoyer l'email
+    $mail->send();
+    echo json_encode(['success' => true]);
+} catch (Exception $e) {
+    // En cas d'exception, enregistrer l'erreur dans le journal des erreurs du serveur
+    error_log("send_otp.php: Erreur d'envoi de l'OTP : " . $mail->ErrorInfo);
+
+    // Retourner une erreur JSON avec une description générique
+    echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'envoi de l\'OTP. Veuillez réessayer plus tard.']);
 }
 ?>
