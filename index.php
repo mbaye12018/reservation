@@ -868,6 +868,13 @@ ksort($codes_telephoniques, SORT_STRING | SORT_FLAG_CASE);
                                     <label class="form-label" for="contact-modal-email">Email</label>
                                 </div>
                             </div>   
+                                      <!-- Structure -->
+                          <div class="col-12">
+                              <div class="form-wrap">
+                                  <input class="form-input" id="contact-modal-structure" type="text" name="structure" required placeholder=" ">
+                                  <label class="form-label" for="contact-modal-structure">Structure</label>
+                              </div>
+                          </div>
 
                             <!-- Fonction   etudiant particulier finaliste-->
                             <div class="col-12">
@@ -1178,7 +1185,7 @@ ksort($codes_telephoniques, SORT_STRING | SORT_FLAG_CASE);
             <div class="modal-body">
                 <form id="formOtp">
                     <div class="form-group">
-                        <label for="otp">Entrez le code OTP envoyé sur votre téléphone :</label>
+                        <label for="otp">Entrez le code OTP envoyé sur votre Mail :</label>
                         <input type="text" class="form-control" id="otp" name="otp" required pattern="\d{6}" maxlength="6">
                     </div>
                     <button type="submit" class="btn btn-primary">Vérifier</button>
@@ -1279,7 +1286,7 @@ document.getElementById('formOtp').addEventListener('submit', function(event) {
                 // Si annulé, ne rien faire
             });
 
-            disableVoting(); // Fonction à implémenter si nécessaire
+      
         } else {
             // Afficher un message d'erreur dans le modal OTP
             var otpError = document.getElementById('otpError');
@@ -1337,4 +1344,4 @@ ac6b0a32a15d86d1c3b6e8db0157ac8f-43269c9d-bdce-470c-ba7b-5d11ba275a37
               
 
 
-              
+  

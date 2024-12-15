@@ -1,6 +1,11 @@
 <?php
 // send_otp.php
 
+// Désactiver l'affichage des erreurs en production
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL);
+
 // Définir le type de contenu comme JSON
 header('Content-Type: application/json');
 
@@ -45,59 +50,13 @@ $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
 $country_code = filter_input(INPUT_POST, 'country_code', FILTER_SANITIZE_STRING);
 $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 $role = filter_input(INPUT_POST, 'role', FILTER_SANITIZE_STRING);
-$structure = filter_input(INPUT_POST, 'structure', FILTER_SANITIZE_STRING); // Nouveau champ
 
 // Vérifier les champs obligatoires
-if (!$firstname || !$lastname || !$phone || !$country_code || !$email || !$role || !$structure) {
+if (!$firstname || !$lastname || !$phone || !$country_code || !$email || !$role) {
     echo json_encode(['success' => false, 'error' => 'Veuillez remplir tous les champs obligatoires.']);
-    error_log("send_otp.php: Champs obligatoires manquants. Données reçues - Prénom: $firstname, Nom: $lastname, Téléphone: $phone, Indicatif: $country_code, Email: $email, Fonction: $role, Structure: $structure");
+    error_log("send_otp.php: Champs obligatoires manquants.");
     exit;
 }
-
-// Optionnel : Validation supplémentaire pour le champ "Structure"
-// Par exemple, vérifier la longueur ou les caractères autorisés
-if (strlen($structure) < 2 || strlen($structure) > 100) {
-    echo json_encode(['success' => false, 'error' => 'La structure doit comporter entre 2 et 100 caractères.']);
-    error_log("send_otp.php: Validation échouée pour la structure: $structure");
-    exit;
-}
-
-// Connexion à la base de données pour vérifier l'unicité de l'email
-$servername = "localhost";
-$usernameDB = "root";
-$passwordDB = "";
-$dbnameDB = "reservation";
-
-$conn = new mysqli($servername, $usernameDB, $passwordDB, $dbnameDB);
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'error' => 'Impossible de se connecter à la base de données.']);
-    error_log("send_otp.php: Connexion à la base de données échouée: " . $conn->connect_error);
-    exit;
-}
-error_log("send_otp.php: Connexion à la base de données réussie.");
-
-// Vérifier si l'email existe déjà
-$email_check_stmt = $conn->prepare("SELECT id FROM participant WHERE email = ?");
-if (!$email_check_stmt) {
-    echo json_encode(['success' => false, 'error' => 'Erreur interne. Veuillez réessayer plus tard.']);
-    error_log("send_otp.php: Erreur de préparation de la requête SQL pour vérifier l'email: " . $conn->error);
-    $conn->close();
-    exit;
-}
-$email_check_stmt->bind_param("s", $email);
-$email_check_stmt->execute();
-$email_check_stmt->store_result();
-
-if ($email_check_stmt->num_rows > 0) {
-    // L'email est déjà utilisé
-    echo json_encode(['success' => false, 'error' => 'Cette adresse email est déjà utilisée.']);
-    error_log("send_otp.php: Tentative d'inscription avec un email existant: $email");
-    $email_check_stmt->close();
-    $conn->close();
-    exit;
-}
-
-$email_check_stmt->close();
 
 // Générer l'OTP
 $otp = generateOTP();
@@ -110,8 +69,7 @@ $_SESSION['user_data'] = [
     'phone'     => $phone,
     'country_code' => $country_code,
     'email'     => $email,
-    'role'      => $role,
-    'structure' => $structure // Stocker le nouveau champ
+    'role'      => $role
 ];
 $_SESSION['otp_generated_time'] = time();
 $_SESSION['otp_attempts'] = 0;
@@ -146,26 +104,21 @@ try {
 
     // Contenu de l'email
     $mail->isHTML(true);                                        // Définir le format de l'email en HTML
-    $mail->Subject = 'Votre Code OTP';
+    $mail->Subject = 'Votre Code de Vérification OTP';
     $mail->Body    = "<p>Bonjour $firstname $lastname,</p>
-                    <p>Votre code de vérification est : <strong>$otp</strong></p>
-                    <p>Ce code est valable pendant 10 minutes.</p>
-                    <p>Merci de votre inscription à Gov'athon 2024.</p>
-                    <p><strong>Structure :</strong> $structure</p>"; // Optionnel : Inclure la structure dans l'email
-    $mail->AltBody = "Bonjour $firstname $lastname,\n\nVotre code de vérification est : $otp\n\nCe code est valable pendant 10 minutes.\n\nMerci de votre inscription à Gov'athon 2024.\n\nStructure : $structure";
+                      <p>Votre code de vérification est : <strong>$otp</strong></p>
+                      <p>Ce code est valable pendant 10 minutes.</p>
+                      <p>Merci de votre inscription à Gov'athon 2024.</p>";
+    $mail->AltBody = "Bonjour $firstname $lastname,\n\nVotre code de vérification est : $otp\n\nCe code est valable pendant 10 minutes.\n\nMerci de votre inscription à Gov'athon 2024.";
 
     // Envoyer l'email
     $mail->send();
     echo json_encode(['success' => true]);
-    error_log("send_otp.php: OTP envoyé à $email. Structure: $structure");
 } catch (Exception $e) {
     // En cas d'exception, enregistrer l'erreur dans le journal des erreurs du serveur
-    error_log("send_otp.php: Erreur d'envoi de l'OTP à $email : " . $mail->ErrorInfo);
+    error_log("send_otp.php: Erreur d'envoi de l'OTP : " . $mail->ErrorInfo);
 
     // Retourner une erreur JSON avec une description générique
     echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'envoi de l\'OTP. Veuillez réessayer plus tard.']);
-    exit;
 }
-
-$conn->close();
 ?>
