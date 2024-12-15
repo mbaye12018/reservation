@@ -5,6 +5,10 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Activer l'affichage des erreurs pour le débogage (désactiver en production)
+error_log("qrOutputFile = $qrOutputFile");
+error_log("finalPngPath = $finalPngPath");
+error_log("finalPdfPath = $finalPdfPath");
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
